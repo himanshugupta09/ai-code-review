@@ -1,5 +1,8 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+
+from git_utils import get_repo_diff
 
 app = FastAPI(title="AI Code Review Backend", version="0.1.0")
 
@@ -13,9 +16,22 @@ app.add_middleware(
 )
 
 
+class DiffRequest(BaseModel):
+    repo_path: str
+    base: str = "HEAD"
+
+
 @app.get("/health")
 def health():
     return {"status": "ok", "service": "ai-code-review-backend"}
+
+
+@app.post("/diff")
+def read_diff(request: DiffRequest):
+    try:
+        return {"files": get_repo_diff(request.repo_path, request.base)}
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
 
 
 if __name__ == "__main__":
