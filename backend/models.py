@@ -30,7 +30,7 @@ class Finding(Base):
     session_id = Column(String, ForeignKey("review_sessions.id"), nullable=False)
     file_path = Column(String, nullable=False)
     line_number = Column(Integer, nullable=True)
-    severity = Column(String, nullable=False)  
+    severity = Column(String, nullable=False)
     message = Column(Text, nullable=False)
     source = Column(String, nullable=False)
 

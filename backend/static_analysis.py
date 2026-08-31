@@ -18,6 +18,7 @@ def run_pylint(file_paths: list[str], repo_path: str) -> list[dict]:
         cwd=repo_path,
         capture_output=True,
         text=True,
+        check=False,
     )
     try:
         raw_findings = json.loads(result.stdout or "[]")
@@ -28,7 +29,9 @@ def run_pylint(file_paths: list[str], repo_path: str) -> list[dict]:
         {
             "file_path": item["path"],
             "line_number": item.get("line"),
-            "severity": PYLINT_SEVERITY_MAP.get(item.get("type", "convention"), "style"),
+            "severity": PYLINT_SEVERITY_MAP.get(
+                item.get("type", "convention"), "style"
+            ),
             "message": item.get("message", ""),
             "source": "linter",
         }
@@ -42,6 +45,7 @@ def run_eslint(file_paths: list[str], repo_path: str) -> list[dict]:
         cwd=repo_path,
         capture_output=True,
         text=True,
+        check=False,
     )
     try:
         raw_files = json.loads(result.stdout or "[]")
