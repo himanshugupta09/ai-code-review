@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from static_analysis import run_static_analysis
 
 from git_utils import get_repo_diff
 
@@ -15,6 +16,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+class LintRequest(BaseModel):
+    repo_path: str
+    files: list[str]
 
 class DiffRequest(BaseModel):
     repo_path: str
@@ -33,6 +38,12 @@ def read_diff(request: DiffRequest):
     except Exception as exc:
         raise HTTPException(status_code=400, detail=str(exc))
 
+@app.post("/lint")
+def lint_files(request: LintRequest):
+    try:
+        return {"findings": run_static_analysis(request.files, request.repo_path)}
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
 
 if __name__ == "__main__":
     import uvicorn
